@@ -19,7 +19,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ConvolutionTest
 {
-  final double DELTA = 1e-2;
+  final double DELTA = 1e-4;
   List<Complex> pattern;
   List<Complex> text;
   List<Double> expectedOutput;
