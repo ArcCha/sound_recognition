@@ -17,14 +17,14 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class ConvolutionTest
+public class FFTBasedAlgorithmsTest
 {
   final double DELTA = 1e-4;
   List<Complex> pattern;
   List<Complex> text;
   List<Double> expectedOutput;
   
-  public ConvolutionTest(List<Complex> pattern, List<Complex> text, List<Double> expectedOutput)
+  public FFTBasedAlgorithmsTest(List<Complex> pattern, List<Complex> text, List<Double> expectedOutput)
   {
     this.pattern = pattern;
     this.text = text;
@@ -87,8 +87,8 @@ public class ConvolutionTest
   @Test
   public void testResultOfConvolution()
   {
-    Convolution convolution = new Convolution();
-    List<Double> result = convolution.countSumOfDiffSquares(pattern, text);
+    FFTBasedAlgorithms fFTBasedAlgorithms = new FFTBasedAlgorithms();
+    List<Double> result = fFTBasedAlgorithms.countSquaredError(pattern, text);
     for (int i = 0; i < expectedOutput.size(); ++i)
     {
       assertEquals(expectedOutput.get(i).doubleValue(), result.get(i).doubleValue(), DELTA);

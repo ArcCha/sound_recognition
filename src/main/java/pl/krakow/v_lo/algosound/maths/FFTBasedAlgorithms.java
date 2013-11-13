@@ -6,21 +6,21 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 
-public class Convolution
+public class FFTBasedAlgorithms
 {
-  public Convolution()
+  public FFTBasedAlgorithms()
   {
 
   }
 
-  public List<Double> countSumOfDiffSquares(List<Complex> pattern, List<Complex> text)
+  public List<Double> countSquaredError(List<Complex> pattern, List<Complex> text)
   {
 //    System.out.println("pattern: " + pattern + "\ntext: " + text);
     final int patternSize = pattern.size();
     final int textSize = text.size();
     final int size = patternSize + textSize;
     final int resultSize = nextPowerOf2(size);
-    List<Double> convolutionResult = new ArrayList<Double>(size);
+    List<Double> squaredError = new ArrayList<Double>(size);
 
     // sum [a;b) = prefixesSum[b] - prefixesSum[a]
     List<Complex> textPrefixesSum = countPrefixesSum(text, size);
@@ -52,10 +52,10 @@ public class Convolution
       sum = patternSquaresSum.get(i);
       sum = sum.add(textPrefixesSum.get(i+1).subtract(textPrefixesSum.get(Math.max(i - patternSize + 1, 0))));
       sum = sum.subtract(convolution.get(i).multiply(2));
-      convolutionResult.add(sum.abs());
+      squaredError.add(sum.abs());
     }
 //    System.out.println("Result: " + convolutionResult);
-    return convolutionResult;
+    return squaredError;
   }
 
   private List<Complex> resize(List<Complex> list, int newSize)
