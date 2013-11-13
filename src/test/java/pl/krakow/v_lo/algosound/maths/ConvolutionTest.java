@@ -47,6 +47,7 @@ public class ConvolutionTest
       
       ArrayList<Complex> patternInput = new ArrayList<Complex>();
       Scanner patternScanner = new Scanner(splitted[0]);
+      patternScanner.useLocale(Locale.US);
       while(patternScanner.hasNextDouble())
       {
         double real = patternScanner.nextDouble();
@@ -58,6 +59,7 @@ public class ConvolutionTest
       
       ArrayList<Complex> textInput = new ArrayList<Complex>();
       Scanner textScanner = new Scanner(splitted[1]);
+      textScanner.useLocale(Locale.US);
       while(textScanner.hasNextDouble())
       {
         double real = textScanner.nextDouble();
