@@ -23,14 +23,16 @@ public class FastFourierTransform
     this.data = data;
   }
 
-  public void transformForward()
+  public List<Complex> transformForward()
   {
     data = transformRadix2(0, data.size(), 1, false);
+    return data;
   }
 
-  public void transformBackward()
+  public List<Complex> transformBackward()
   {
     data = transformRadix2(0, data.size(), 1, true);
+    return data;
   }
 
   private List<Complex> transformRadix2(int startingIdx, int size, int step, boolean reverse)

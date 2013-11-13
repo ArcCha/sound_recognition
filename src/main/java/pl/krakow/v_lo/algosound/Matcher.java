@@ -1,6 +1,3 @@
-/**
- * 
- */
 package pl.krakow.v_lo.algosound;
 
 import java.util.ArrayList;
@@ -9,11 +6,8 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 
-import pl.krakow.v_lo.algosound.maths.FastFourierTransform;
+import pl.krakow.v_lo.algosound.maths.FastFourierTransform;;
 
-/**
- * @author arccha
- */
 public class Matcher
 {
   private Command             pattern;
@@ -71,7 +65,7 @@ public class Matcher
         matchingRate = matchSamples(patternSamples, patternBegin, textSamples, textBegin);
         if(matchingRate < result.getMatchingRate())
         {
-          System.out.println("matching rate (" + patternBegin + ", " + textBegin + "): " + matchingRate);
+//          System.out.println("matching rate (" + patternBegin + ", " + textBegin + "): " + matchingRate);
           result.setMatchingRate(matchingRate);
         }
       }
@@ -112,8 +106,7 @@ public class Matcher
     {
       List<Complex> sample = rawData.subList(idx, idx + matchingSampleSize);
       FastFourierTransform fft = new FastFourierTransform(sample);
-      fft.transformForward();
-      result.add(fft.getResult());
+      result.add(fft.transformForward());
       idx += matchingSampleSize;
     }
     return result;
