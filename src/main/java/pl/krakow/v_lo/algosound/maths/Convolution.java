@@ -15,17 +15,15 @@ public class Convolution
   
   public List<Double> countSumOfDiffSquares(List<Complex> pattern, List<Complex> text)
   {
-    System.out.println("Text: " + text);
-    System.out.println("Pattern: " + pattern);
-    
     final int patternSize = pattern.size();
     final int textSize = text.size();
-    final int resultSize = nextPowerOf2(pattern.size() + text.size());
-    List<Double> convolutionResult = new ArrayList<Double>(pattern.size() + text.size());
-    // sum [a;b) = prefixesSum[b] - prefixesSum[a]
+    final int size = patternSize + textSize;
+    final int resultSize = nextPowerOf2(size);
+    List<Double> convolutionResult = new ArrayList<Double>(size);
     
-    double[] textPrefixesSum = countPrefixesSum(text, pattern.size());
-    double[] patternSquaresSum = countSquaresSum(pattern);
+    // sum [a;b) = prefixesSum[b] - prefixesSum[a]    
+    double[] textPrefixesSum = countPrefixesSum(text, size);
+    double[] patternSquaresSum = countSquaresSum(pattern, size, textSize);
     
     Collections.reverse(pattern);
     pattern = resize(pattern, resultSize);
@@ -44,7 +42,6 @@ public class Convolution
     fft = new FastFourierTransform(convolution);
     convolution = fft.transformBackward();
     
-    System.out.println("Convolution: " + convolution);
     double sum;
     for (int i = 0; i < textSize + patternSize - 1; ++i)
     {
@@ -52,7 +49,6 @@ public class Convolution
       sum -= 2 * convolution.get(i).abs();
       convolutionResult.add(sum);
     }
-    System.out.println("Result: " + convolutionResult);
     return convolutionResult;
   }
   
@@ -66,38 +62,35 @@ public class Convolution
     return newList;
   }
   
-  private double[] countPrefixesSum(List<Complex> list, int extendSize)
+  private double[] countPrefixesSum(List<Complex> list, int size)
   {
-    final int size = list.size() + extendSize;
     double[] prefixesSum = new double[size];
     prefixesSum[0] = 0;
     for (int i = 0; i < list.size(); ++i)
       prefixesSum[i+1] = prefixesSum[i] + Math.pow(list.get(i).abs(), 2);
-    
     for (int i = list.size() + 1; i < size; ++i)
       prefixesSum[i] = prefixesSum[i-1];
     return prefixesSum;
   }
   
-  private double[] countSquaresSum(List<Complex> list)
+  private double[] countSquaresSum(List<Complex> list, int size, int textSize)
   {
-    double[] squaresSum = new double[2*list.size() + 1];
+    double[] squaresSum = new double[size];
     int i = 0;
-    double sum = 0;
+    double currentSum = 0;
   
     for (int j = list.size()-1; j >= 0; --j, ++i)
     {
-      sum += Math.pow(list.get(j).abs(), 2);
-      squaresSum[i] = sum;
-      System.out.print("("+i+") " + sum + " ");
+      currentSum += Math.pow(list.get(j).abs(), 2);
+      squaresSum[i] = currentSum;
     }
+    for (int j = 0; j < textSize - list.size(); ++j, ++i)
+      squaresSum[i] = squaresSum[i-1];
     for (int j = list.size()-1; j >= 0; --j, ++i)
     {
-      sum -= Math.pow(list.get(j).abs(), 2);
-      squaresSum[i] = sum;
-      System.out.print("("+i+") " + sum + " ");
+      currentSum -= Math.pow(list.get(j).abs(), 2);
+      squaresSum[i] = currentSum;
     }
-    System.out.println("");
     return squaresSum;
   }
   
