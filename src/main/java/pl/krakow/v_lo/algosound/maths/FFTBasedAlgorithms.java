@@ -15,7 +15,7 @@ public class FFTBasedAlgorithms
 
   public List<Double> countSquaredError(List<Complex> pattern, List<Complex> text)
   {
-//    System.out.println("pattern: " + pattern + "\ntext: " + text);
+    // System.out.println("pattern: " + pattern + "\ntext: " + text);
     final int patternSize = pattern.size();
     final int textSize = text.size();
     final int size = patternSize + textSize;
@@ -24,9 +24,9 @@ public class FFTBasedAlgorithms
 
     // sum [a;b) = prefixesSum[b] - prefixesSum[a]
     List<Complex> textPrefixesSum = countPrefixesSum(text, size);
-//    System.out.println("TextPrefixesSum: " + textPrefixesSum);
+    // System.out.println("TextPrefixesSum: " + textPrefixesSum);
     List<Complex> patternSquaresSum = countSquaresSum(pattern, size, textSize);
-//    System.out.println("PatternSquaresSum: " + patternSquaresSum);
+    // System.out.println("PatternSquaresSum: " + patternSquaresSum);
 
     Collections.reverse(pattern);
     resize(pattern, resultSize);
@@ -45,16 +45,16 @@ public class FFTBasedAlgorithms
     fft = new FastFourierTransform(convolution);
     convolution = fft.transformBackward();
 
-//    System.out.println("Convolution: " + convolution);
+    // System.out.println("Convolution: " + convolution);
     Complex sum;
     for (int i = 0; i < textSize + patternSize - 1; ++i)
     {
       sum = patternSquaresSum.get(i);
-      sum = sum.add(textPrefixesSum.get(i+1).subtract(textPrefixesSum.get(Math.max(i - patternSize + 1, 0))));
+      sum = sum.add(textPrefixesSum.get(i + 1).subtract(textPrefixesSum.get(Math.max(i - patternSize + 1, 0))));
       sum = sum.subtract(convolution.get(i).multiply(2));
       squaredError.add(sum.abs());
     }
-//    System.out.println("Result: " + convolutionResult);
+    // System.out.println("Result: " + convolutionResult);
     return squaredError;
   }
 
@@ -72,10 +72,10 @@ public class FFTBasedAlgorithms
     for (int i = 0; i < list.size(); ++i)
     {
       tempVal = list.get(i).multiply(list.get(i)); // list[i]^2
-      prefixesSum.add( prefixesSum.get(i).add(tempVal) ); // add(prefix[i] + list[i]^2)
+      prefixesSum.add(prefixesSum.get(i).add(tempVal)); // add(prefix[i] + list[i]^2)
     }
     for (int i = list.size() + 1; i < size; ++i)
-      prefixesSum.add(prefixesSum.get(i-1));
+      prefixesSum.add(prefixesSum.get(i - 1));
     return prefixesSum;
   }
 
@@ -90,9 +90,9 @@ public class FFTBasedAlgorithms
       currentSum = currentSum.add(list.get(j).multiply(list.get(j))); // currentSum += list[j]^2
       squaresSum.add(currentSum);
     }
-//    System.out.println("");
+    // System.out.println("");
     for (int j = textSize - list.size() - 1; j >= 0; --j, ++i)
-      squaresSum.add(squaresSum.get(i - 1));  // sum[i] = sum[i-1]
+      squaresSum.add(squaresSum.get(i - 1)); // sum[i] = sum[i-1]
     for (int j = list.size() - 1; j >= 0; --j, ++i)
     {
       currentSum = currentSum.subtract(list.get(j).multiply(list.get(j))); // currentSum -= list[j]^2
