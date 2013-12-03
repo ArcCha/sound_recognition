@@ -9,8 +9,6 @@ import org.apache.commons.math3.complex.Complex;
 import pl.krakow.v_lo.algosound.maths.FFTBasedAlgorithms;
 import pl.krakow.v_lo.algosound.maths.FastFourierTransform;
 
-;
-
 public class Matcher
 {
   private Command            pattern;
