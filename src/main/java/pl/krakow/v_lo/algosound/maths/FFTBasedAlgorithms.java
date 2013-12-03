@@ -13,8 +13,10 @@ public class FFTBasedAlgorithms
 
   }
 
-  public List<Double> countSquaredError(List<Complex> pattern, List<Complex> text)
+  public List<Double> countSquaredError(List<Complex> patternOrig, List<Complex> textOrig)
   {
+    List<Complex> pattern = new ArrayList<Complex>(patternOrig);
+    List<Complex> text = new ArrayList<Complex>(textOrig);
     // System.out.println("pattern: " + pattern + "\ntext: " + text);
     final int patternSize = pattern.size();
     final int textSize = text.size();
