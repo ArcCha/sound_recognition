@@ -1,7 +1,6 @@
 package pl.krakow.v_lo.algosound.gui;
 
 import java.awt.Dimension;
-import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jfree.chart.ChartFactory;
@@ -51,11 +50,9 @@ public class SpectrumChart extends ChartPanel
     final XYSeries series = new XYSeries("Amplitude - frequency");
     
     int xValue = 0;
-    for(List<Complex> samples : Matcher.computeSamplesFromCommand(command))
-    {
-      for (Complex yValue : samples)
-        series.add(xValue++, yValue.abs());
-    }
+    for(Complex yValue : Matcher.computeSamplesFromCommand(command))
+      series.add(xValue++, yValue.abs());
+    
     return new XYSeriesCollection(series);
   }
   

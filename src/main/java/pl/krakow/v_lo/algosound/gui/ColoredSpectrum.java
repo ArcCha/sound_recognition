@@ -16,8 +16,8 @@ import pl.krakow.v_lo.algosound.Matcher;
 
 public class ColoredSpectrum extends JComponent
 {
-  private List<List<Double>> data;
-  private final int          sampleSize = 1024;
+  private List<Double> data;
+  private final int    sampleSize = 1024;
 
   public ColoredSpectrum(Dimension dimension, Command command)
   {
@@ -35,15 +35,14 @@ public class ColoredSpectrum extends JComponent
     final int width = 3;
     final int height = 1;
     final int numberOfSamplesAverage = 2;
-    int x = 0;
-    for (List<Double> part : data)
+    for (int i = 0, x = 0; i < data.size(); i += sampleSize)
     {
       int y = sampleSize / numberOfSamplesAverage / 2;
       float val = 0;
-      for (int i = 0; i < sampleSize; ++i)
+      for (int j = i; j < i + sampleSize; ++j)
       {
-        val += part.get(i).floatValue();
-        if ((i+1) % numberOfSamplesAverage == 0)
+        val += data.get(j).floatValue();
+        if ((j + 1) % numberOfSamplesAverage == 0)
         {
           val = Math.min(val, 1f);
           g2d.setColor(new Color(val, val, val));
@@ -58,15 +57,9 @@ public class ColoredSpectrum extends JComponent
 
   private void createDataset(Command command)
   {
-    data = new ArrayList<List<Double>>();
-    int i = 0;
-    for (List<Complex> samples : Matcher.computeSamplesFromCommand(command))
-    {
-      data.add(new ArrayList<Double>());
-      for (Complex yValue : samples)
-        data.get(i).add(yValue.abs());
-      ++i;
-    }
+    data = new ArrayList<Double>();
+    for (Complex yValue : Matcher.computeSamplesFromCommand(command))
+      data.add(yValue.abs());
   }
 
   public void updateSpectrum(Command command)

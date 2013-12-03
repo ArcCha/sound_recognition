@@ -12,17 +12,17 @@ public class Matcher
 {
   private Command             pattern;
   private Database            database;
-  private List<List<Complex>> patternSamples;
+  private List<Complex> patternSamples;
   private static final int    matchingSampleSize = 1024;
 
   public Matcher(Command pattern, Database database)
   {
     this.pattern = pattern;
     this.database = database;
-    patternSamples = new ArrayList<List<Complex>>();
+    patternSamples = new ArrayList<Complex>();
   }
   
-  public List<List<Complex>> getPatternSamples()
+  public List<Complex> getPatternSamples()
   {
     return patternSamples;
   }
@@ -53,7 +53,7 @@ public class Matcher
   private MatchedResult match(Command command)
   {
     MatchedResult result = new MatchedResult(command, 1e60);
-    List<List<Complex>> textSamples = computeSamplesFromCommand(command);
+    List<Complex> textSamples = computeSamplesFromCommand(command);
     double matchingRate = 0;
     final int patternEnd = 8;
     final int textEnd = 8;
@@ -72,41 +72,38 @@ public class Matcher
     return result;
   }
 
-  private double matchSamples(List<List<Complex>> patternSamples, int patternBegin, 
-                           List<List<Complex>> textSamples, int textBegin)
+  private double matchSamples(List<Complex> patternSamples, int patternBegin, 
+                              List<Complex> textSamples, int textBegin)
   {
     double matchingRate = 0;
-    int pattern_i = patternBegin;
-    int text_i = textBegin;
+    int pattern_i = matchingSampleSize * patternBegin;
+    int text_i = matchingSampleSize * textBegin;
     while(text_i < textSamples.size() && pattern_i < patternSamples.size())
     {
-      for(int j = 0; j < matchingSampleSize; ++j)
-      {
-        double textVal = textSamples.get(text_i).get(j).abs();
-        double patternVal = patternSamples.get(pattern_i).get(j).abs();
-        matchingRate += Math.pow((textVal - patternVal), 2);
-      }
+      double textVal = textSamples.get(text_i).abs();
+      double patternVal = patternSamples.get(pattern_i).abs();
+      matchingRate += Math.pow((textVal - patternVal), 2);
       ++text_i;
       ++pattern_i;
     }
     return matchingRate;
   }
 
-  public static List<List<Complex>> computeSamplesFromCommand(Command command)
+  public static List<Complex> computeSamplesFromCommand(Command command)
   {
     return computeSamplesFromCommand(command, matchingSampleSize);
   }
 
-  public static List<List<Complex>> computeSamplesFromCommand(Command command, int matchingSampleSize)
+  public static List<Complex> computeSamplesFromCommand(Command command, int matchingSampleSize)
   {
-    List<List<Complex>> result = new ArrayList<List<Complex>>();
+    List<Complex> result = new ArrayList<Complex>();
     List<Complex> rawData = command.getRawData();
     int idx = 0;
     while (idx + matchingSampleSize - 1 < rawData.size())
     {
       List<Complex> sample = rawData.subList(idx, idx + matchingSampleSize);
       FastFourierTransform fft = new FastFourierTransform(sample);
-      result.add(fft.transformForward());
+      result.addAll(fft.transformForward());
       idx += matchingSampleSize;
     }
     return result;
