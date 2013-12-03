@@ -37,14 +37,14 @@ public class FFTBasedAlgorithms
     FastFourierTransform fft = new FastFourierTransform(pattern);
     List<Complex> pattern_fft = fft.transformForward();
 
-    fft = new FastFourierTransform(text);
+    fft.setData(text);
     List<Complex> text_fft = fft.transformForward();
 
     List<Complex> convolution = new ArrayList<Complex>(resultSize);
     for (int i = 0; i < resultSize; ++i)
       convolution.add(pattern_fft.get(i).multiply(text_fft.get(i)));
 
-    fft = new FastFourierTransform(convolution);
+    fft.setData(convolution);
     convolution = fft.transformBackward();
 
     // System.out.println("Convolution: " + convolution);

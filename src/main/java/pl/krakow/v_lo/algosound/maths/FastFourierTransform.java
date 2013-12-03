@@ -76,6 +76,11 @@ public class FastFourierTransform
   {
     return data;
   }
+  
+  public void setData(List<Complex> data)
+  {
+    this.data = data;
+  }
 
   private boolean isPowerOfTwo(int number)
   {
