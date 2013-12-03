@@ -82,10 +82,9 @@ public class Matcher
     {
       for(int j = 0; j < matchingSampleSize; ++j)
       {
-        Complex textVal = textSamples.get(text_i).get(j);
-        Complex patternVal = patternSamples.get(pattern_i).get(j);
-        Complex val = textVal.subtract(patternVal);
-        matchingRate += val.multiply(val).abs();
+        double textVal = textSamples.get(text_i).get(j).abs();
+        double patternVal = patternSamples.get(pattern_i).get(j).abs();
+        matchingRate += Math.pow((textVal - patternVal), 2);
       }
       ++text_i;
       ++pattern_i;
