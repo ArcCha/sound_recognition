@@ -29,8 +29,8 @@ public class FFTBasedAlgorithms
 //    System.out.println("PatternSquaresSum: " + patternSquaresSum);
 
     Collections.reverse(pattern);
-    pattern = resize(pattern, resultSize);
-    text = resize(text, resultSize);
+    resize(pattern, resultSize);
+    resize(text, resultSize);
 
     FastFourierTransform fft = new FastFourierTransform(pattern);
     List<Complex> pattern_fft = fft.transformForward();
@@ -58,14 +58,10 @@ public class FFTBasedAlgorithms
     return squaredError;
   }
 
-  private List<Complex> resize(List<Complex> list, int newSize)
+  private void resize(List<Complex> list, int newSize)
   {
-    List<Complex> newList = new ArrayList<Complex>(newSize);
-    for (int i = 0; i < list.size(); ++i)
-      newList.add(list.get(i));
     for (int i = list.size(); i < newSize; ++i)
-      newList.add(new Complex(0));
-    return newList;
+      list.add(new Complex(0));
   }
 
   private List<Complex> countPrefixesSum(List<Complex> list, int size)
@@ -94,7 +90,7 @@ public class FFTBasedAlgorithms
       currentSum = currentSum.add(list.get(j).multiply(list.get(j))); // currentSum += list[j]^2
       squaresSum.add(currentSum);
     }
-    System.out.println("");
+//    System.out.println("");
     for (int j = textSize - list.size() - 1; j >= 0; --j, ++i)
       squaresSum.add(squaresSum.get(i - 1));  // sum[i] = sum[i-1]
     for (int j = list.size() - 1; j >= 0; --j, ++i)
