@@ -1,9 +1,13 @@
 package pl.krakow.v_lo.algosound;
 
-public class CommandManager
+import java.util.Observable;
+
+public class CommandManager extends Observable
 {
   private Database database;
-  
+  private Command  current;
+  private Command  matched;
+
   CommandManager(Database database)
   {
     this.database = database;

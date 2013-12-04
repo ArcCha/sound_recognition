@@ -14,12 +14,12 @@ import org.apache.commons.math3.complex.Complex;
 import pl.krakow.v_lo.algosound.Command;
 import pl.krakow.v_lo.algosound.Matcher;
 
-public class ColoredSpectrum extends JComponent
+public class ColoredSpectrumChart extends JComponent
 {
   private List<List<Double>> data;
   private final int          sampleSize = 1024;
 
-  public ColoredSpectrum(Dimension dimension, Command command)
+  public ColoredSpectrumChart(Dimension dimension, Command command)
   {
     createDataset(command);
     setSize(dimension);

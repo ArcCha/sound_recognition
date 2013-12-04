@@ -1,32 +1,28 @@
 package pl.krakow.v_lo.algosound.gui;
 
-import java.awt.Dimension;
-import java.util.List;
-
 import org.apache.commons.math3.complex.Complex;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import pl.krakow.v_lo.algosound.Command;
-import pl.krakow.v_lo.algosound.Matcher;
 
-public class SpectrumChart
+public class SoundWaveChart
 {
-  private static final String TITLE = "SpectrumChart";
+  private static final String TITLE = "SoundChart";
   private Command             command;
   private JFreeChart          chart;
 
-  public SpectrumChart()
+  public SoundWaveChart()
   {
     this.command = null;
   }
 
-  public SpectrumChart(Command command)
+  public SoundWaveChart(Command command)
   {
     this.command = command;
     chart = createChart(command);
@@ -35,27 +31,24 @@ public class SpectrumChart
   private JFreeChart createChart(Command command)
   {
     final JFreeChart chart = ChartFactory.createXYLineChart(TITLE, // chart title
-        "Frequency", // x axis label
-        "Amplitude", // y axis label
+        "Sample", // x axis label
+        "Value", // y axis label
         createDataset(command), // data
         PlotOrientation.VERTICAL, false, // include legend
         false, // tooltips
         false // urls
         );
-
     return chart;
   }
 
   private XYDataset createDataset(Command command)
   {
-    final XYSeries series = new XYSeries("Amplitude - frequency");
+    final XYSeries series = new XYSeries("Amplitude - time");
 
     int xValue = 0;
-    for (List<Complex> samples : Matcher.computeSamplesFromCommand(command))
-    {
-      for (Complex yValue : samples)
-        series.add(xValue++, yValue.abs());
-    }
+    for (Complex yValue : command.getData())
+      series.add(xValue++, yValue.getReal());
+    
     return new XYSeriesCollection(series);
   }
 
