@@ -12,44 +12,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author arccha
  */
-public class Command
+public class Command extends Observable
 {
-  private File          location;
   private String        name;
   private List<Complex> data;
 
-  public Command(File location)
+  public Command()
   {
-    this.location = location;
-    name = location.getName();
+    name = null;
     data = new ArrayList<Complex>();
-    try
-    {
-      loadRawData();
-    }
-    catch (IOException e)
-    {
-      // Something is wrong with audioInputStream.available()
-      e.printStackTrace();
-    }
-  }
-
-  private void loadRawData() throws IOException
-  {
-    Path path = Paths.get(location.getAbsolutePath());
-    byte [] bytes = Files.readAllBytes(path);
-    ByteBuffer bb = ByteBuffer.wrap(bytes);
-    bb.order(ByteOrder.LITTLE_ENDIAN);
-    while(bb.hasRemaining())
-    {
-      data.add(new Complex((double) bb.getShort(), 0));
-    }
   }
 
   public List<Complex> getData()
@@ -68,10 +46,13 @@ public class Command
     return "Command [name=" + name + "]";
   }
 
-  public File getLocation()
+  public void setName(String name)
   {
-    return location;
+    this.name = name;
   }
-  
-  
+
+  public void setData(List<Complex> data)
+  {
+    this.data = data;
+  }
 }

@@ -9,7 +9,7 @@ import pl.krakow.v_lo.algosound.Command;
 
 public class CommandGraphSet extends JComponent implements Observer
 {
-  private SoundWaveChart           soundChart;
+  private SoundWaveChart       soundChart;
   private SpectrumChart        spectrumChart;
   private ColoredSpectrumChart coloredSpectrumChart;
 
@@ -19,7 +19,7 @@ public class CommandGraphSet extends JComponent implements Observer
     spectrumChart = null;
     coloredSpectrumChart = null;
   }
-  
+
   CommandGraphSet(Command command)
   {
     soundChart = new SoundWaveChart(command);
@@ -28,8 +28,7 @@ public class CommandGraphSet extends JComponent implements Observer
 
   @Override
   public void update(Observable arg0, Object arg1)
-  {
-    // TODO Auto-generated method stub
+  {   
 
   }
 }

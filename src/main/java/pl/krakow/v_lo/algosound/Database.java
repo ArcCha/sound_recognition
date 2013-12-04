@@ -11,6 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -66,6 +69,9 @@ public class Database
 
   public void saveRawCommandBytes(String name, ByteArrayOutputStream stream)
   {
+    String commandList = properties.getProperty("commandList");
+    commandList += "," + name;
+    properties.setProperty("commandList", commandList);
     if(!name.endsWith(".wav"))
       name += ".wav";
     File newCommandFile = new File(databaseDir, name);
@@ -102,29 +108,60 @@ public class Database
     saveRawCommandBytes("command", stream);
   }
 
-  public ArrayList<Command> getAllCommands()
-  {
-    File[] commands = databaseDir.listFiles(new FileFilter()
-    {
-      @Override
-      public boolean accept(File arg0)
-      {
-        if (!arg0.isDirectory())
-          return true;
-        return false;
-      }
-    });
-    ArrayList<Command> result = new ArrayList<Command>();
-    for (File file : commands)
-    {
-      result.add(new Command(file));
-    }
-    return result;
-  }
+//  public ArrayList<Command> getAllCommands()
+//  {
+//    File[] commands = databaseDir.listFiles(new FileFilter()
+//    {
+//      @Override
+//      public boolean accept(File arg0)
+//      {
+//        if (!arg0.isDirectory())
+//          return true;
+//        return false;
+//      }
+//    });
+//    ArrayList<Command> result = new ArrayList<Command>();
+//    for (File file : commands)
+//    {
+//      result.add(new Command(file));
+//    }
+//    return result;
+//  }
   
   public Command getCommand(String commandName)
   {
-    File commandFile = new File(databaseDir, commandName + ".wav");
-    return new Command(commandFile);
+    final File commandFile = new File(databaseDir, commandName + ".wav");
+    Command command = new Command();
+    command.setName(commandName);
+    Path path = Paths.get(commandFile.getAbsolutePath());
+    byte[] bytes = null;
+    try
+    {
+      bytes = Files.readAllBytes(path);
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+    ByteBuffer bb = ByteBuffer.wrap(bytes);
+    bb.order(ByteOrder.LITTLE_ENDIAN);
+    List<Complex> commandData = command.getData();
+    while(bb.hasRemaining())
+    {
+      commandData.add(new Complex((double) bb.getShort(), 0));
+    }
+    return command;
+  }
+  
+  public List<Command> getAllCommands()
+  {
+    String commandList = properties.getProperty("commandList");
+    String [] commandNames = commandList.split(",");
+    ArrayList<Command> allCommands = new ArrayList<Command>();
+    for(String name : commandNames)
+    {
+      allCommands.add(getCommand(name));
+    }
+    return allCommands;
   }
 }

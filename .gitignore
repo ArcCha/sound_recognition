@@ -4,3 +4,4 @@ target/
 .settings/
 *.wav
 databaseAS/
+.algosound/
