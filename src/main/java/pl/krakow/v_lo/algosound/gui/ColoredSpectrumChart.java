@@ -16,6 +16,10 @@ import pl.krakow.v_lo.algosound.Matcher;
 
 public class ColoredSpectrumChart extends JComponent
 {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private List<List<Double>> data;
   private final int          sampleSize = 1024;
 

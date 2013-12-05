@@ -3,13 +3,6 @@
  */
 package pl.krakow.v_lo.algosound;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -26,7 +19,7 @@ public class Command extends Observable
 
   public Command()
   {
-    name = null;
+    name = "";
     data = new ArrayList<Complex>();
   }
 
@@ -54,5 +47,12 @@ public class Command extends Observable
   public void setData(List<Complex> data)
   {
     this.data = data;
+  }
+  
+  public void replicate(Command command)
+  {
+    name = command.getName();
+    data = command.getData();
+    setChanged();
   }
 }

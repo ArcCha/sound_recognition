@@ -3,23 +3,24 @@ package pl.krakow.v_lo.algosound;
 
 public class CommandManager
 {
-  private Database database;
-  private Command  current;
+  private Command  pattern;
   private Command  matched;
 
-  CommandManager(Database database)
+  CommandManager()
   {
-    this.database = database;
+    this.pattern = new Command();
+    this.matched = new Command();
   }
 
-  public Command getCurrent()
+  public Command getPattern()
   {
-    return current;
+    return pattern;
   }
 
-  public void setCurrent(Command current)
+  public void setPattern(Command pattern)
   {
-    this.current = current;
+    this.pattern.replicate(pattern);
+    this.pattern.notifyObservers();
   }
 
   public Command getMatched()
@@ -29,6 +30,7 @@ public class CommandManager
 
   public void setMatched(Command matched)
   {
-    this.matched = matched;
+    this.matched.replicate(matched);
+    this.matched.notifyObservers();
   }
 }

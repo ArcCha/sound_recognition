@@ -5,7 +5,6 @@ package pl.krakow.v_lo.algosound;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,16 +30,16 @@ public class Database
 
   public Database()
   {
-    databaseDir = new File("./.algosound");
+    databaseDir = new File(".algosound/");
     propertiesFile = new File(databaseDir, "database.properties");
     properties = new Properties();
-    if (!databaseDir.exists())
-    {
-      databaseDir.mkdir();
-      initProperties();
-    }
     try
     {
+      if (!databaseDir.exists())
+      {
+        databaseDir.mkdir();
+        initProperties();
+      }
       properties.load(new FileInputStream(propertiesFile));
     }
     catch (IOException e)
@@ -48,13 +47,14 @@ public class Database
       e.printStackTrace();
     }
   }
-  
-  private void initProperties()
+
+  private void initProperties() throws IOException
   {
+    propertiesFile.createNewFile();
     properties.setProperty("commandList", "");
     saveProperties();
   }
-  
+
   private void saveProperties()
   {
     try
@@ -72,7 +72,7 @@ public class Database
     String commandList = properties.getProperty("commandList");
     commandList += "," + name;
     properties.setProperty("commandList", commandList);
-    if(!name.endsWith(".wav"))
+    if (!name.endsWith(".wav"))
       name += ".wav";
     File newCommandFile = new File(databaseDir, name);
     try
@@ -86,12 +86,12 @@ public class Database
       e.printStackTrace();
     }
   }
-  
+
   public void saveCommand(Command command, String sufix) throws IOException
   {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     List<Complex> commandData = command.getData();
-    for(Complex complex : commandData)
+    for (Complex complex : commandData)
     {
       double sample = complex.abs();
       short test = (short) sample;
@@ -102,32 +102,32 @@ public class Database
     }
     saveRawCommandBytes(command.getName() + sufix, outputStream);
   }
-  
+
   public void saveCurrentCommand(ByteArrayOutputStream stream)
   {
     saveRawCommandBytes("command", stream);
   }
 
-//  public ArrayList<Command> getAllCommands()
-//  {
-//    File[] commands = databaseDir.listFiles(new FileFilter()
-//    {
-//      @Override
-//      public boolean accept(File arg0)
-//      {
-//        if (!arg0.isDirectory())
-//          return true;
-//        return false;
-//      }
-//    });
-//    ArrayList<Command> result = new ArrayList<Command>();
-//    for (File file : commands)
-//    {
-//      result.add(new Command(file));
-//    }
-//    return result;
-//  }
-  
+  // public ArrayList<Command> getAllCommands()
+  // {
+  // File[] commands = databaseDir.listFiles(new FileFilter()
+  // {
+  // @Override
+  // public boolean accept(File arg0)
+  // {
+  // if (!arg0.isDirectory())
+  // return true;
+  // return false;
+  // }
+  // });
+  // ArrayList<Command> result = new ArrayList<Command>();
+  // for (File file : commands)
+  // {
+  // result.add(new Command(file));
+  // }
+  // return result;
+  // }
+
   public Command getCommand(String commandName)
   {
     final File commandFile = new File(databaseDir, commandName + ".wav");
@@ -146,20 +146,22 @@ public class Database
     ByteBuffer bb = ByteBuffer.wrap(bytes);
     bb.order(ByteOrder.LITTLE_ENDIAN);
     List<Complex> commandData = command.getData();
-    while(bb.hasRemaining())
+    while (bb.hasRemaining())
     {
       commandData.add(new Complex((double) bb.getShort(), 0));
     }
     return command;
   }
-  
+
   public List<Command> getAllCommands()
   {
     String commandList = properties.getProperty("commandList");
-    String [] commandNames = commandList.split(",");
+    String[] commandNames = commandList.split(",");
     ArrayList<Command> allCommands = new ArrayList<Command>();
-    for(String name : commandNames)
+    for (String name : commandNames)
     {
+      if(name.length() == 0)
+        continue;
       allCommands.add(getCommand(name));
     }
     return allCommands;
