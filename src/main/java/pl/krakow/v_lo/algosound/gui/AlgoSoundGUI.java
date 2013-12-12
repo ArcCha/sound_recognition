@@ -6,16 +6,16 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
-import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 
 import pl.krakow.v_lo.algosound.AlgoSound;
 import pl.krakow.v_lo.algosound.Command;
+import pl.krakow.v_lo.algosound.CommandManager;
 import pl.krakow.v_lo.algosound.Database;
 import pl.krakow.v_lo.algosound.MatchedResult;
 import pl.krakow.v_lo.algosound.Matcher;
@@ -40,30 +41,28 @@ public class AlgoSoundGUI extends JFrame
    * No idea what it is used for, but eclipse complains about it.
    */
   private static final long      serialVersionUID = -8821408889675820562L;
-  private static final Dimension appDimension     = new Dimension(800, 600);
+  private static final Dimension APP_DIMENSION     = new Dimension(1024, 768);
   private final AlgoSoundGUI     THIS             = this;
   private AlgoSound              algoSound;
-  private SoundChart             patternGraph;
-  private SpectrumChart          patternSpectrum;
-  private Spectrogram            patternSpectogram;
-  private SoundChart             matchedGraph;
-  private SpectrumChart          matchedSpectrum;
-  private Spectrogram            matchedSpectogram;
-  private File                   matchedSound;
-  private Command                matchedCommand;
+
+  private CommandGraphSet        patternGraphs;
+  private CommandGraphSet        matchedGraphs;
+
+  private Database               database;
+  private CommandManager         commandManager;
 
   public AlgoSoundGUI(AlgoSound algoSound)
   {
     this.algoSound = algoSound;
-    matchedSound = new File(Database.getDatabasePath("command.wav"));
-    matchedCommand = new Command(matchedSound);
+    database = algoSound.getDatabase();
+    commandManager = algoSound.getCommandManager();
     initializeUI();
   }
 
   private void initializeUI()
   {
     setTitle("Algosound");
-    setSize(appDimension);
+    setSize(APP_DIMENSION);
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -71,7 +70,7 @@ public class AlgoSoundGUI extends JFrame
 
     BorderLayout layout = new BorderLayout(10, 10);
     JPanel panel = new JPanel(layout);
-    panel.setPreferredSize(appDimension);
+    panel.setPreferredSize(APP_DIMENSION);
 
     initializeCenter(panel);
     initializeEast(panel);
@@ -83,25 +82,13 @@ public class AlgoSoundGUI extends JFrame
   private void initializeCenter(JPanel panel)
   {
     JPanel innerPanel = new JPanel();
-    BoxLayout boxLayout = new BoxLayout(innerPanel, BoxLayout.Y_AXIS);
-    innerPanel.setLayout(boxLayout);
-    Dimension chartDimension = new Dimension(660, 150);
-    
-    Command patternCommand = new Command(new File(Database.getDatabasePath("command.wav")));
-    patternGraph = new SoundChart(patternCommand, "Command", chartDimension);
-    innerPanel.add(patternGraph);
-    patternSpectrum = new SpectrumChart("Command spectrum", chartDimension, patternCommand);
-    innerPanel.add(patternSpectrum);
-    patternSpectogram = new Spectrogram(chartDimension, patternCommand);
-    innerPanel.add(patternSpectogram);
-    
-    matchedGraph = new SoundChart(new Command(matchedSound), "Matched sound", chartDimension);
-    innerPanel.add(matchedGraph);
-    matchedSpectrum = new SpectrumChart("Matched sound spectrum", chartDimension, matchedCommand);
-    innerPanel.add(matchedSpectrum);
-    matchedSpectogram = new Spectrogram(chartDimension, matchedCommand);
-    innerPanel.add(matchedSpectogram);
-    
+    innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+    patternGraphs = new CommandGraphSet();
+    commandManager.getPattern().addObserver(patternGraphs);
+    innerPanel.add(patternGraphs);
+    matchedGraphs = new CommandGraphSet();
+    commandManager.getMatched().addObserver(matchedGraphs);
+    innerPanel.add(matchedGraphs);
     panel.add(innerPanel, BorderLayout.CENTER);
   }
 
@@ -117,8 +104,7 @@ public class AlgoSoundGUI extends JFrame
       @Override
       public void actionPerformed(ActionEvent arg0)
       {
-        File commandFile = new File(Database.getDatabasePath("command.wav"));
-        SoundRecorder soundRecorder = new SoundRecorder(commandFile);
+        SoundRecorder soundRecorder = new SoundRecorder();
         soundRecorder.startRecording();
         try
         {
@@ -128,11 +114,18 @@ public class AlgoSoundGUI extends JFrame
         {
           Thread.currentThread().interrupt();
         }
-        soundRecorder.stopRecording();
-        Command command = new Command(commandFile);
-        patternGraph.updateChart(command);
-        patternSpectrum.updateChart(command);
-        patternSpectogram.updateSpectrum(command);
+        ByteArrayOutputStream recorded = null;
+        try
+        {
+          recorded = soundRecorder.stopRecording();
+        }
+        catch (IOException e)
+        {
+          e.printStackTrace();
+        }
+        database.saveCurrentCommand(recorded);
+        Command command = database.getCommand("command");
+        commandManager.setPattern(command);
       }
     });
 
@@ -142,12 +135,12 @@ public class AlgoSoundGUI extends JFrame
       @Override
       public void actionPerformed(ActionEvent arg0)
       {
-        Matcher matcher = new Matcher(new Command(new File(Database.getDatabasePath("command.wav"))), algoSound.getDatabase());
+        Matcher matcher = new Matcher(database.getCommand("command"), algoSound.getDatabase());
         List<MatchedResult> matchResults = matcher.match();
         if (matchResults.size() > 0)
         {
-          matchedSound = new File(Database.getDatabasePath(matchResults.get(0).getCommand().getName()));
-          updateMatched(new Command(matchedSound));
+          Command matchedSound = matchResults.get(0).getCommand();
+          commandManager.setMatched(matchedSound);
         }
         System.out.println(matchResults);
       }
@@ -159,7 +152,7 @@ public class AlgoSoundGUI extends JFrame
       @Override
       public void actionPerformed(ActionEvent e)
       {
-        File soundFile = new File("./databaseAS/command.wav");
+        File soundFile = new File("./.algosound/command.wav");
         BufferedInputStream sound = null;
         try
         {
@@ -182,12 +175,12 @@ public class AlgoSoundGUI extends JFrame
       @Override
       public void actionPerformed(ActionEvent e)
       {
-        if(matchedCommand == null)
+        if (commandManager.getMatched() == null)
         {
           JOptionPane.showMessageDialog(THIS, "You need to match first");
           return;
         }
-        File matchedSound = new File(Database.getDatabasePath(matchedCommand.getName()));
+        File matchedSound = null;
         BufferedInputStream sound = null;
         try
         {
@@ -205,80 +198,30 @@ public class AlgoSoundGUI extends JFrame
     });
 
     justifyButtonsAndAdd(innerPanel, record, playCommand, match, playMatched);
-    
-    addCheckboxes(innerPanel);
-    
+
     panel.add(innerPanel, BorderLayout.EAST);
   }
 
-  private void addCheckboxes(JPanel innerPanel)
-  {
-    innerPanel.add(createChartCheckBox(patternGraph, "Command chart"));
-    innerPanel.add(createSpectrumCheckBox(patternSpectrum, "Command spectrum"));
-    innerPanel.add(createSpectogramCheckBox(patternSpectogram, "Command spectogram"));
-    
-    innerPanel.add(createChartCheckBox(matchedGraph, "Matched chart"));
-    innerPanel.add(createSpectrumCheckBox(matchedSpectrum, "Matched spectrum"));
-    innerPanel.add(createSpectogramCheckBox(matchedSpectogram, "Matched spectogram"));
-  }
-  
-  private JCheckBox createSpectogramCheckBox(final Spectrogram spectrum, String text)
-  {
-    JCheckBox spectrumCheckBox = new JCheckBox(text);
-    spectrumCheckBox.setSelected(true);
-    spectrumCheckBox.addActionListener(new ActionListener()
-    {
-      @Override
-      public void actionPerformed(ActionEvent actionEvent)
-      {
-        AbstractButton abstractButton = (AbstractButton)actionEvent.getSource();
-        if(abstractButton.getModel().isSelected())
-          spectrum.unhideIt();
-        else
-          spectrum.hideIt();
-      }
-    });
-    return spectrumCheckBox;
-  }
+//TODO Remove
+//  private JCheckBox createColoredCheckBox(final ColoredSpectrumChart spectrum, String text)
+//  {
+//    JCheckBox spectrumCheckBox = new JCheckBox(text);
+//    spectrumCheckBox.setSelected(true);
+//    spectrumCheckBox.addActionListener(new ActionListener()
+//    {
+//      @Override
+//      public void actionPerformed(ActionEvent actionEvent)
+//      {
+//        AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
+//        if (abstractButton.getModel().isSelected())
+//          spectrum.unhideIt();
+//        else
+//          spectrum.hideIt();
+//      }
+//    });
+//    return spectrumCheckBox;
+//  }
 
-  private JCheckBox createChartCheckBox(final SoundChart chart, String text)
-  {
-    JCheckBox chartCheckBox = new JCheckBox(text);
-    chartCheckBox.setSelected(true);
-    chartCheckBox.addActionListener(new ActionListener()
-    {
-      @Override
-      public void actionPerformed(ActionEvent actionEvent)
-      {
-        AbstractButton abstractButton = (AbstractButton)actionEvent.getSource();
-        if(abstractButton.getModel().isSelected())
-          chart.unhideIt();
-        else
-          chart.hideIt();
-      }
-    });
-    return chartCheckBox;
-  }
-
-  private JCheckBox createSpectrumCheckBox(final SpectrumChart chart, String text)
-  {
-    JCheckBox chartCheckBox = new JCheckBox(text);
-    chartCheckBox.setSelected(true);
-    chartCheckBox.addActionListener(new ActionListener()
-    {
-      @Override
-      public void actionPerformed(ActionEvent actionEvent)
-      {
-        AbstractButton abstractButton = (AbstractButton)actionEvent.getSource();
-        if(abstractButton.getModel().isSelected())
-          chart.unhideIt();
-        else
-          chart.hideIt();
-      }
-    });
-    return chartCheckBox;
-  }
-  
   private void justifyButtonsAndAdd(JPanel panel, JButton... buttons)
   {
     Dimension dimension = new Dimension(140, 30);
@@ -331,13 +274,5 @@ public class AlgoSoundGUI extends JFrame
       }
     });
     database.add(showCommand);
-  }
-
-  public void updateMatched(Command command)
-  {
-    matchedCommand = command;
-    matchedGraph.updateChart(command);
-    matchedSpectrum.updateChart(command);
-    matchedSpectogram.updateSpectrum(command);
   }
 }

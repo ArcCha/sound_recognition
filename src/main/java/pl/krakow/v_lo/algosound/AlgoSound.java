@@ -1,4 +1,5 @@
 package pl.krakow.v_lo.algosound;
+
 import javax.swing.SwingUtilities;
 
 import pl.krakow.v_lo.algosound.gui.AlgoSoundGUI;
@@ -12,22 +13,19 @@ import pl.krakow.v_lo.algosound.gui.AlgoSoundGUI;
  */
 public class AlgoSound
 {
-  private Database database;
-  
+  private Database       database;
+  private CommandManager commandManager;
+
   public AlgoSound()
   {
     database = new Database();
+    commandManager = new CommandManager();
   }
-  
-  public Database getDatabase()
-  {
-    return database;
-  }
-  
+
   public static void main(String[] args)
   {
     final AlgoSound algoSound = new AlgoSound();
-    
+
     SwingUtilities.invokeLater(new Runnable()
     {
 
@@ -38,5 +36,15 @@ public class AlgoSound
         algoSoundGUI.setVisible(true);
       }
     });
+  }
+
+  public CommandManager getCommandManager()
+  {
+    return commandManager;
+  }
+
+  public Database getDatabase()
+  {
+    return database;
   }
 }

@@ -9,7 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import pl.krakow.v_lo.algosound.AlgoSound;
-import pl.krakow.v_lo.algosound.Database;
 import pl.krakow.v_lo.algosound.sound.SoundRecorder;
 
 /**
@@ -80,13 +80,12 @@ public class AddCommand extends JFrame
           JOptionPane.showMessageDialog(THIS, "You need to specify name of the command first.");
           return;
         }
-        if (!algoSound.getDatabase().isNameAvailable(commandName))
-        {
-          JOptionPane.showMessageDialog(THIS, "Command already exists. Choose other name.");
-          return;
-        }
-        File newCommand = new File(Database.getDatabasePath(commandName));
-        SoundRecorder soundRecorder = new SoundRecorder(newCommand);
+//        if (!algoSound.getDatabase().isNameAvailable(commandName))
+//        {
+//          JOptionPane.showMessageDialog(THIS, "Command already exists. Choose other name.");
+//          return;
+//        }
+        SoundRecorder soundRecorder = new SoundRecorder();
         soundRecorder.startRecording();
         try
         {
@@ -96,7 +95,16 @@ public class AddCommand extends JFrame
         {
           e.printStackTrace();
         }
-        soundRecorder.stopRecording();
+        ByteArrayOutputStream recorded = null;
+        try
+        {
+          recorded = soundRecorder.stopRecording();
+        }
+        catch (IOException e)
+        {
+          e.printStackTrace();
+        }
+        algoSound.getDatabase().saveRawCommandBytes(commandName, recorded);
         THIS.setVisible(false);
         THIS.dispose();
       }

@@ -36,14 +36,14 @@ public class Matcher
   public List<MatchedResult> match()
   {
     System.out.println("Starting matching.");
-
+    
     List<MatchedResult> result = new ArrayList<MatchedResult>();
     patternSamples = computeSamplesFromCommand(pattern);
     absPattern = getAbsValues(patternSamples);
 
     for (Command command : database.getAllCommands())
     {
-      if (command.getName().equals("command.wav"))
+      if (command.getName().equals("command"))
         continue;
 
       System.out.print("### Matching " + command.getName() + "... ");
@@ -90,7 +90,7 @@ public class Matcher
 
   public static List<Complex> computeSamplesFromCommand(Command command, int matchingSampleSize)
   {
-    List<Complex> rawData = command.getRawData();
+    List<Complex> rawData = command.getData();
     List<Complex> result = new ArrayList<Complex>(rawData.size());
     int idx = 0;
     while (idx + matchingSampleSize - 1 < rawData.size())

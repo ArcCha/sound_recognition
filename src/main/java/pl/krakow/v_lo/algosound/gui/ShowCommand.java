@@ -15,6 +15,10 @@ import pl.krakow.v_lo.algosound.Database;
 
 public class ShowCommand extends JFrame
 {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private Database     database;
   private AlgoSoundGUI mainFrame;
 
@@ -43,7 +47,6 @@ public class ShowCommand extends JFrame
         @Override
         public void actionPerformed(ActionEvent e)
         {
-          mainFrame.updateMatched(command);
         }
       });
       commandButton.setPreferredSize(buttonDimension);

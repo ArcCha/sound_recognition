@@ -14,12 +14,13 @@ import org.apache.commons.math3.complex.Complex;
 import pl.krakow.v_lo.algosound.Command;
 import pl.krakow.v_lo.algosound.Matcher;
 
-public class Spectrogram extends JComponent
+public class ColoredSpectrumChart extends JComponent
 {
-  private List<Double> data;
-  private final int    sampleSize = 1024;
+  private static final long serialVersionUID = 1L;
+  private List<Double>      data;
+  private final int         sampleSize       = 1024;
 
-  public Spectrogram(Dimension dimension, Command command)
+  public ColoredSpectrumChart(Dimension dimension, Command command)
   {
     createDataset(command);
     setSize(dimension);
@@ -35,6 +36,7 @@ public class Spectrogram extends JComponent
     final int width = 3;
     final int height = 1;
     final int numberOfSamplesAverage = 2;
+    
     for (int i = 0, x = 0; i < data.size(); i += sampleSize)
     {
       int y = sampleSize / numberOfSamplesAverage / 2;

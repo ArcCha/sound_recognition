@@ -3,8 +3,12 @@
  */
 package pl.krakow.v_lo.algosound.sound;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -21,12 +25,19 @@ public class SoundRecorder extends Thread
 {
   private TargetDataLine                    line;
   private AudioInputStream                  audioInputStream;
-  private File                              outputFile;
+  private File                              tmpFile;
   private static final AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
 
-  public SoundRecorder(File outputFile)
+  public SoundRecorder()
   {
-    this.outputFile = outputFile;
+    try
+    {
+      tmpFile = File.createTempFile("wav", "tmp");
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
   }
 
   public void startRecording()
@@ -36,10 +47,15 @@ public class SoundRecorder extends Thread
     super.start();
   }
 
-  public void stopRecording()
+  public ByteArrayOutputStream stopRecording() throws IOException
   {
     line.stop();
     line.close();
+    Path tmpFilePath = Paths.get(tmpFile.getAbsolutePath(), "");
+    byte[] bytes = Files.readAllBytes(tmpFilePath);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    outputStream.write(bytes);
+    return outputStream;
   }
 
   @Override
@@ -47,14 +63,13 @@ public class SoundRecorder extends Thread
   {
     try
     {
-      AudioSystem.write(audioInputStream, targetType, outputFile);
+      AudioSystem.write(audioInputStream, targetType, tmpFile);
     }
     catch (IOException e)
     {
       e.printStackTrace();
     }
   }
-  
 
   private void setUpRecorder()
   {
