@@ -1,6 +1,3 @@
-/**
- * 
- */
 package pl.krakow.v_lo.algosound;
 
 import java.util.ArrayList;
@@ -9,26 +6,29 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 
+import pl.krakow.v_lo.algosound.maths.FFTBasedAlgorithms;
 import pl.krakow.v_lo.algosound.maths.FastFourierTransform;
 
-/**
- * @author arccha
- */
 public class Matcher
 {
-  private Command             pattern;
-  private Database            database;
-  private List<List<Complex>> patternSamples;
-  private static final int    matchingSampleSize = 1024;
+  private Command            pattern;
+  private Database           database;
+  private List<Complex>      patternSamples;
+  private List<Complex>      absPattern;
+  private List<Complex>      absText;
+  private FFTBasedAlgorithms fftAlg;
+  private static final int   matchingSampleSize = 1024;
+  private final int          comparisonRange    = 12 * matchingSampleSize;
 
   public Matcher(Command pattern, Database database)
   {
     this.pattern = pattern;
     this.database = database;
-    patternSamples = new ArrayList<List<Complex>>();
+    patternSamples = new ArrayList<Complex>();
+    fftAlg = new FFTBasedAlgorithms();
   }
-  
-  public List<List<Complex>> getPatternSamples()
+
+  public List<Complex> getPatternSamples()
   {
     return patternSamples;
   }
@@ -39,18 +39,19 @@ public class Matcher
     
     List<MatchedResult> result = new ArrayList<MatchedResult>();
     patternSamples = computeSamplesFromCommand(pattern);
-    
+    absPattern = getAbsValues(patternSamples);
+
     for (Command command : database.getAllCommands())
     {
-      if (command.getName().equals("command.wav"))
+      if (command.getName().equals("command"))
         continue;
-      
-      System.out.println("### Matching " + command.getName() + "...");
-      
+
+      System.out.print("### Matching " + command.getName() + "... ");
+
       MatchedResult matchedResult = match(command);
       result.add(matchedResult);
-      
-      System.out.println("### Matching rate: " + matchedResult.getMatchingRate());
+
+      System.out.println(matchedResult.getMatchingRate());
     }
     Collections.sort(result);
     return result;
@@ -58,62 +59,45 @@ public class Matcher
 
   private MatchedResult match(Command command)
   {
+    absText = getAbsValues(computeSamplesFromCommand(command));
+
+    List<Double> squaredErrorAll = fftAlg.countSquaredError(absPattern, absText);
+    final int equalPlaced = patternSamples.size() - 1;
+
     MatchedResult result = new MatchedResult(command, 1e60);
-    List<List<Complex>> textSamples = computeSamplesFromCommand(command);
-    double matchingRate = 0;
-    final int patternEnd = 8;
-    final int textEnd = 8;
-    // ucinaj wzorzec od przodu i przesuwaj
-    for (int patternBegin = 0; patternBegin < patternEnd; ++patternBegin)
-      // przesuwaj wzorzec względem porównywanego tekstu (ucinaj tył tekstu)
-      for (int textBegin = 0; textBegin < textEnd; ++textBegin)
-      {
-        matchingRate = matchSamples(patternSamples, patternBegin, textSamples, textBegin);
-        if(matchingRate < result.getMatchingRate())
-        {
-          System.out.println("matching rate (" + patternBegin + ", " + textBegin + "): " + matchingRate);
-          result.setMatchingRate(matchingRate);
-        }
-      }
+    int i = equalPlaced - comparisonRange;
+    for (; i < equalPlaced + comparisonRange; i += matchingSampleSize)
+    {
+      double matchingRate = squaredErrorAll.get(i);
+      if (matchingRate < result.getMatchingRate())
+        result.setMatchingRate(matchingRate);
+    }
     return result;
   }
 
-  private double matchSamples(List<List<Complex>> patternSamples, int patternBegin, 
-                           List<List<Complex>> textSamples, int textBegin)
+  private List<Complex> getAbsValues(List<Complex> list)
   {
-    double matchingRate = 0;
-    int pattern_i = patternBegin;
-    int text_i = textBegin;
-    while(text_i < textSamples.size() && pattern_i < patternSamples.size())
-    {
-      for(int j = 0; j < matchingSampleSize; ++j)
-      {
-        double textVal = textSamples.get(text_i).get(j).abs();
-        double patternVal = patternSamples.get(pattern_i).get(j).abs();
-        matchingRate += Math.pow((textVal - patternVal), 2);
-      }
-      ++text_i;
-      ++pattern_i;
-    }
-    return matchingRate;
+    List<Complex> absList = new ArrayList<Complex>(list.size());
+    for (Complex value : list)
+      absList.add(new Complex(value.abs(), 0));
+    return absList;
   }
 
-  public static List<List<Complex>> computeSamplesFromCommand(Command command)
+  public static List<Complex> computeSamplesFromCommand(Command command)
   {
     return computeSamplesFromCommand(command, matchingSampleSize);
   }
 
-  public static List<List<Complex>> computeSamplesFromCommand(Command command, int matchingSampleSize)
+  public static List<Complex> computeSamplesFromCommand(Command command, int matchingSampleSize)
   {
-    List<List<Complex>> result = new ArrayList<List<Complex>>();
     List<Complex> rawData = command.getData();
+    List<Complex> result = new ArrayList<Complex>(rawData.size());
     int idx = 0;
     while (idx + matchingSampleSize - 1 < rawData.size())
     {
       List<Complex> sample = rawData.subList(idx, idx + matchingSampleSize);
       FastFourierTransform fft = new FastFourierTransform(sample);
-      fft.transformForward();
-      result.add(fft.getResult());
+      result.addAll(fft.transformForward());
       idx += matchingSampleSize;
     }
     return result;

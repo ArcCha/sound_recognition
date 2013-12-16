@@ -1,7 +1,6 @@
 package pl.krakow.v_lo.algosound.gui;
 
 import java.awt.Dimension;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -110,11 +109,9 @@ public class CommandGraphSet extends JScrollPane implements Observer
     final XYSeries series = new XYSeries("Amplitude - frequency");
 
     int xValue = 0;
-    for (List<Complex> samples : Matcher.computeSamplesFromCommand(command))
-    {
-      for (Complex yValue : samples)
+    for (Complex yValue : Matcher.computeSamplesFromCommand(command))
         series.add(xValue++, yValue.abs());
-    }
+    
     return new XYSeriesCollection(series);
   }
 }

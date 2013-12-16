@@ -261,7 +261,7 @@ public class AlgoSoundGUI extends JFrame
       }
     });
     database.add(addCommand);
-
+    
     JMenuItem showCommand = new JMenuItem("Show command");
     showCommand.setToolTipText("Show charts for selected command instead of matched");
     showCommand.addActionListener(new ActionListener()

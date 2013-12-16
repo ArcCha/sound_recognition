@@ -86,6 +86,7 @@ public class Database
     {
       e.printStackTrace();
     }
+    saveProperties();
   }
 
   public void saveCommand(Command command, String sufix) throws IOException
