@@ -27,13 +27,13 @@ public class CommandGraphSet extends JScrollPane implements Observer
   /**
    * 
    */
-  private static final long   serialVersionUID  = 1L;
-  private static final String NO_DATA_AVAILABLE = "No data available.";
-  private static final Dimension CHART_DIMENSION = new Dimension(256, 256);
-  private JFreeChart          soundWaveChart;
-  private XYPlot              soundWavePlot;
-  private JFreeChart          spectrumChart;
-  private XYPlot              spectrumPlot;
+  private static final long      serialVersionUID  = 1L;
+  private static final String    NO_DATA_AVAILABLE = "No data available.";
+  private static final Dimension CHART_DIMENSION   = new Dimension(256, 256);
+  private JFreeChart             soundWaveChart;
+  private XYPlot                 soundWavePlot;
+  private JFreeChart             spectrumChart;
+  private XYPlot                 spectrumPlot;
 
   CommandGraphSet()
   {

@@ -72,6 +72,7 @@ public class Database
     String commandList = properties.getProperty("commandList");
     commandList += "," + name;
     properties.setProperty("commandList", commandList);
+    saveProperties();
     if (!name.endsWith(".wav"))
       name += ".wav";
     File newCommandFile = new File(databaseDir, name);
@@ -108,26 +109,6 @@ public class Database
     saveRawCommandBytes("command", stream);
   }
 
-  // public ArrayList<Command> getAllCommands()
-  // {
-  // File[] commands = databaseDir.listFiles(new FileFilter()
-  // {
-  // @Override
-  // public boolean accept(File arg0)
-  // {
-  // if (!arg0.isDirectory())
-  // return true;
-  // return false;
-  // }
-  // });
-  // ArrayList<Command> result = new ArrayList<Command>();
-  // for (File file : commands)
-  // {
-  // result.add(new Command(file));
-  // }
-  // return result;
-  // }
-
   public Command getCommand(String commandName)
   {
     final File commandFile = new File(databaseDir, commandName + ".wav");
@@ -160,7 +141,7 @@ public class Database
     ArrayList<Command> allCommands = new ArrayList<Command>();
     for (String name : commandNames)
     {
-      if(name.length() == 0)
+      if(name.length() == 0 || name.equals("command"))
         continue;
       allCommands.add(getCommand(name));
     }
