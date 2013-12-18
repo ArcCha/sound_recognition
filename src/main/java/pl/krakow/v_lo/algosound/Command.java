@@ -3,6 +3,10 @@
  */
 package pl.krakow.v_lo.algosound;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -22,7 +26,40 @@ public class Command extends Observable
     name = "";
     data = new ArrayList<Complex>();
   }
+  
+  public Command(String name, List<Complex> data)
+  {
+    this.name = name;
+    this.data = data;
+  }
 
+  public static List<Complex> parseBytes(ByteArrayOutputStream stream)
+  {
+    List<Complex> result = new ArrayList<Complex>();
+    byte[] byteArr = stream.toByteArray();
+    ByteBuffer buff = ByteBuffer.wrap(byteArr);
+    buff.order(ByteOrder.LITTLE_ENDIAN);
+    while (buff.hasRemaining())
+    {
+      result.add(new Complex((double) buff.getShort(), 0));
+    }
+    return result;
+  }
+  
+  public static ByteArrayOutputStream convertComplex(List<Complex> data) throws IOException
+  {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    for(Complex complex : data)
+    {
+      ByteBuffer buff = ByteBuffer.allocate(2);
+      buff.order(ByteOrder.LITTLE_ENDIAN);
+      double abs = complex.abs();
+      buff.putShort((short) abs);
+      out.write(buff.array());
+    }
+    return out;
+  }
+  
   public List<Complex> getData()
   {
     return data;
@@ -48,7 +85,7 @@ public class Command extends Observable
   {
     this.data = data;
   }
-  
+
   public void replicate(Command command)
   {
     name = command.getName();

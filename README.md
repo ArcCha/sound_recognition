@@ -1,4 +1,4 @@
 sound_recognition
 =================
 
-Project for algorithmic's class focusing on recognizing short sound commands.
+Project for algorithmics class focusing on recognizing short sound commands.
