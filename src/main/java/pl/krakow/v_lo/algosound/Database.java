@@ -77,10 +77,13 @@ public class Database
   public void saveCommand(Command command)
   {
     String name = command.getName();
-    String commandList = properties.getProperty("commandList");
-    commandList += "," + name;
-    properties.setProperty("commandList", commandList);
-    saveProperties();
+    if (!name.equals("command"))
+    {
+      String commandList = properties.getProperty("commandList");
+      commandList += "," + name;
+      properties.setProperty("commandList", commandList);
+      saveProperties();
+    }
     name += ".wav";
     try
     {
@@ -96,7 +99,7 @@ public class Database
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-  
+
   }
 
   public Command getCommand(String commandName)
@@ -110,8 +113,8 @@ public class Database
       AudioInputStream audioInput = AudioSystem.getAudioInputStream(commandFile);
       final int frameSize = audioInput.getFormat().getFrameSize();
       final int buffSize = 1024 * frameSize;
-      byte [] byteArray = new byte[buffSize];
-      while(audioInput.available() > 0)
+      byte[] byteArray = new byte[buffSize];
+      while (audioInput.available() > 0)
       {
         audioInput.read(byteArray);
         ByteBuffer buff = ByteBuffer.wrap(byteArray);
@@ -136,7 +139,7 @@ public class Database
     ArrayList<Command> allCommands = new ArrayList<Command>();
     for (String name : commandNames)
     {
-      if(name.length() == 0)
+      if (name.length() == 0)
         continue;
       allCommands.add(getCommand(name));
     }

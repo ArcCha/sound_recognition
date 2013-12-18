@@ -40,7 +40,7 @@ public class FastFourierTransformParametrizedTest
   @Parameters
   public static Collection<Object[]> generateData()
   {
-    InputStream in = FastFourierTransform.class.getClassLoader().getResourceAsStream("FastFourierTransformTests.txt");
+    InputStream in = FastFourierTransform.class.getClassLoader().getResourceAsStream("fftTests.txt");
     Scanner scanner = new Scanner(in);
     scanner.useLocale(Locale.US);
     final int numberOfTestCases = scanner.nextInt();

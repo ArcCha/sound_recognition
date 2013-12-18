@@ -25,7 +25,7 @@ public class SoundRecorder
 
   static
   {
-    AUDIO_FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 1, 2, 44100.0F, false);
+    AUDIO_FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 16000.0F, 16, 1, 2, 16000.0F, false);
     TARGET_TYPE = AudioFileFormat.Type.WAVE;
   }
 
@@ -35,7 +35,7 @@ public class SoundRecorder
 
   public SoundRecorder()
   {
-
+    stopped = new AtomicBoolean(false);
   }
 
   public void startRecording()
@@ -52,7 +52,7 @@ public class SoundRecorder
     int numBytesRead = 0;
     byte[] data = new byte[line.getBufferSize() / 5];
     line.start();
-    timer.run();
+    timer.start();
     while (!stopped.get())
     {
       numBytesRead = line.read(data, 0, data.length);
