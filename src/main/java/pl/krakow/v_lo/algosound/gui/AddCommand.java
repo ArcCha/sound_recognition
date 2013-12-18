@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import pl.krakow.v_lo.algosound.AlgoSound;
+import pl.krakow.v_lo.algosound.Command;
 import pl.krakow.v_lo.algosound.sound.SoundRecorder;
 
 /**
@@ -87,24 +88,9 @@ public class AddCommand extends JFrame
 //        }
         SoundRecorder soundRecorder = new SoundRecorder();
         soundRecorder.startRecording();
-        try
-        {
-          Thread.sleep(1500);
-        }
-        catch (InterruptedException e)
-        {
-          e.printStackTrace();
-        }
-        ByteArrayOutputStream recorded = null;
-        try
-        {
-          recorded = soundRecorder.stopRecording();
-        }
-        catch (IOException e)
-        {
-          e.printStackTrace();
-        }
-        algoSound.getDatabase().saveRawCommandBytes(commandName, recorded);
+        ByteArrayOutputStream data = soundRecorder.getRecordedData();
+        Command command = new Command(commandName, Command.parseBytes(data));
+        algoSound.getDatabase().saveCommand(command);
         THIS.setVisible(false);
         THIS.dispose();
       }

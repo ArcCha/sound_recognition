@@ -10,7 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.Box;
@@ -106,26 +105,10 @@ public class AlgoSoundGUI extends JFrame
       {
         SoundRecorder soundRecorder = new SoundRecorder();
         soundRecorder.startRecording();
-        try
-        {
-          Thread.sleep(1500);
-        }
-        catch (InterruptedException e)
-        {
-          Thread.currentThread().interrupt();
-        }
-        ByteArrayOutputStream recorded = null;
-        try
-        {
-          recorded = soundRecorder.stopRecording();
-        }
-        catch (IOException e)
-        {
-          e.printStackTrace();
-        }
-        database.saveCurrentCommand(recorded);
-        Command command = database.getCommand("command");
+        ByteArrayOutputStream output = soundRecorder.getRecordedData();
+        Command command = new Command("command", Command.parseBytes(output));
         commandManager.setPattern(command);
+        database.saveCommand(command);
       }
     });
 

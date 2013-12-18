@@ -4,87 +4,85 @@
 package pl.krakow.v_lo.algosound.sound;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
+import pl.krakow.v_lo.algosound.Timer;
+
 /**
  * @author arccha
  */
-public class SoundRecorder extends Thread
+public class SoundRecorder
 {
+  public static final AudioFileFormat.Type TARGET_TYPE;
+  public static final AudioFormat          AUDIO_FORMAT;
+
+  static
+  {
+    AUDIO_FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 1, 2, 44100.0F, false);
+    TARGET_TYPE = AudioFileFormat.Type.WAVE;
+  }
+
   private TargetDataLine                    line;
-  private AudioInputStream                  audioInputStream;
-  private File                              tmpFile;
-  private static final AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
+  private AtomicBoolean                     stopped;
+  private ByteArrayOutputStream             out;
 
   public SoundRecorder()
   {
-    try
-    {
-      tmpFile = File.createTempFile("wav", "tmp");
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-    }
+
   }
 
   public void startRecording()
   {
-    setUpRecorder();
+    prepareLine();
+    record();
+    cleanup();
+  }
+
+  private void record()
+  {
+    Timer timer = new Timer(stopped);
+    out = new ByteArrayOutputStream();
+    int numBytesRead = 0;
+    byte[] data = new byte[line.getBufferSize() / 5];
     line.start();
-    super.start();
+    timer.run();
+    while (!stopped.get())
+    {
+      numBytesRead = line.read(data, 0, data.length);
+      out.write(data, 0, numBytesRead);
+    }
   }
 
-  public ByteArrayOutputStream stopRecording() throws IOException
+  private void cleanup()
   {
-    line.stop();
+    line.flush();
     line.close();
-    Path tmpFilePath = Paths.get(tmpFile.getAbsolutePath(), "");
-    byte[] bytes = Files.readAllBytes(tmpFilePath);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    outputStream.write(bytes);
-    return outputStream;
+    stopped.set(false);
   }
 
-  @Override
-  public void run()
+  private void prepareLine()
   {
-    try
-    {
-      AudioSystem.write(audioInputStream, targetType, tmpFile);
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-    }
-  }
-
-  private void setUpRecorder()
-  {
-    AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 1, 2, 44100.0F, false);
-    DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
+    DataLine.Info info = new DataLine.Info(TargetDataLine.class, AUDIO_FORMAT);
     try
     {
       line = (TargetDataLine) AudioSystem.getLine(info);
-      line.open(audioFormat);
+      line.open(AUDIO_FORMAT);
     }
     catch (LineUnavailableException e)
     {
       e.printStackTrace();
     }
-    this.audioInputStream = new AudioInputStream(line);
   }
 
+  public ByteArrayOutputStream getRecordedData()
+  {
+    return out;
+  }
 }

@@ -3,6 +3,7 @@
  */
 package pl.krakow.v_lo.algosound;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import org.apache.commons.math3.complex.Complex;
+
+import pl.krakow.v_lo.algosound.sound.SoundRecorder;
 
 /**
  * @author arccha Simple, stupid class used to manage command .wav files, which are used as texts.
@@ -67,90 +74,58 @@ public class Database
     }
   }
 
-  public void saveRawCommandBytes(String name, ByteArrayOutputStream stream)
+  public void saveCommand(Command command)
   {
+    String name = command.getName();
     String commandList = properties.getProperty("commandList");
     commandList += "," + name;
     properties.setProperty("commandList", commandList);
-    if (!name.endsWith(".wav"))
-      name += ".wav";
-    File newCommandFile = new File(databaseDir, name);
+    saveProperties();
+    name += ".wav";
     try
     {
-      FileOutputStream newCommandStream = new FileOutputStream(newCommandFile);
-      newCommandStream.write(stream.toByteArray());
-      newCommandStream.close();
+      ByteArrayOutputStream byteOutput = Command.convertComplex(command.getData());
+      ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
+      long soundLenght = byteInput.available() / 2;
+      AudioInputStream audioInput = new AudioInputStream(byteInput, SoundRecorder.AUDIO_FORMAT, soundLenght);
+      File commandFile = new File(databaseDir, name);
+      AudioSystem.write(audioInput, SoundRecorder.TARGET_TYPE, commandFile);
     }
     catch (IOException e)
     {
+      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    saveProperties();
+  
   }
-
-  public void saveCommand(Command command, String sufix) throws IOException
-  {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    List<Complex> commandData = command.getData();
-    for (Complex complex : commandData)
-    {
-      double sample = complex.abs();
-      short test = (short) sample;
-      ByteBuffer bb = ByteBuffer.allocate(2);
-      bb.order(ByteOrder.LITTLE_ENDIAN);
-      bb.putShort(test);
-      outputStream.write(bb.array());
-    }
-    saveRawCommandBytes(command.getName() + sufix, outputStream);
-  }
-
-  public void saveCurrentCommand(ByteArrayOutputStream stream)
-  {
-    saveRawCommandBytes("command", stream);
-  }
-
-  // public ArrayList<Command> getAllCommands()
-  // {
-  // File[] commands = databaseDir.listFiles(new FileFilter()
-  // {
-  // @Override
-  // public boolean accept(File arg0)
-  // {
-  // if (!arg0.isDirectory())
-  // return true;
-  // return false;
-  // }
-  // });
-  // ArrayList<Command> result = new ArrayList<Command>();
-  // for (File file : commands)
-  // {
-  // result.add(new Command(file));
-  // }
-  // return result;
-  // }
 
   public Command getCommand(String commandName)
   {
     final File commandFile = new File(databaseDir, commandName + ".wav");
     Command command = new Command();
     command.setName(commandName);
-    Path path = Paths.get(commandFile.getAbsolutePath());
-    byte[] bytes = null;
+    ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
     try
     {
-      bytes = Files.readAllBytes(path);
+      AudioInputStream audioInput = AudioSystem.getAudioInputStream(commandFile);
+      final int frameSize = audioInput.getFormat().getFrameSize();
+      final int buffSize = 1024 * frameSize;
+      byte [] byteArray = new byte[buffSize];
+      while(audioInput.available() > 0)
+      {
+        audioInput.read(byteArray);
+        ByteBuffer buff = ByteBuffer.wrap(byteArray);
+        buff.order(ByteOrder.LITTLE_ENDIAN);
+        byteOutput.write(buff.array());
+      }
     }
-    catch (IOException e)
+    catch (UnsupportedAudioFileException | IOException e)
     {
+      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    ByteBuffer bb = ByteBuffer.wrap(bytes);
-    bb.order(ByteOrder.LITTLE_ENDIAN);
-    List<Complex> commandData = command.getData();
-    while (bb.hasRemaining())
-    {
-      commandData.add(new Complex((double) bb.getShort(), 0));
-    }
+    List<Complex> data = Command.parseBytes(byteOutput);
+    command.setData(data);
     return command;
   }
 
