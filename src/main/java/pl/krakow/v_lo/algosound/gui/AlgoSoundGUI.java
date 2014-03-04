@@ -31,9 +31,6 @@ import pl.krakow.v_lo.algosound.Matcher;
 import pl.krakow.v_lo.algosound.sound.SoundPlayer;
 import pl.krakow.v_lo.algosound.sound.SoundRecorder;
 
-/**
- * Hello world!
- */
 public class AlgoSoundGUI extends JFrame
 {
   /*
@@ -252,7 +249,7 @@ public class AlgoSoundGUI extends JFrame
       @Override
       public void actionPerformed(ActionEvent arg0)
       {
-        ShowCommand showCommand = new ShowCommand(THIS, algoSound);
+        ShowCommand showCommand = new ShowCommand(THIS, algoSound, commandManager);
         showCommand.setVisible(true);
       }
     });

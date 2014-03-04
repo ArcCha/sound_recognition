@@ -11,21 +11,21 @@ import javax.swing.JPanel;
 
 import pl.krakow.v_lo.algosound.AlgoSound;
 import pl.krakow.v_lo.algosound.Command;
+import pl.krakow.v_lo.algosound.CommandManager;
 import pl.krakow.v_lo.algosound.Database;
 
 public class ShowCommand extends JFrame
 {
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private Database     database;
   private AlgoSoundGUI mainFrame;
+  private CommandManager commandManager;
 
-  public ShowCommand(AlgoSoundGUI mainFrame, AlgoSound algoSound)
+  public ShowCommand(AlgoSoundGUI mainFrame, AlgoSound algoSound, CommandManager commandManager)
   {
     this.database = algoSound.getDatabase();
     this.mainFrame = mainFrame;
+    this.commandManager = commandManager;
     setTitle("Show command");
     setPreferredSize(new Dimension(310, 120));
     setLocationRelativeTo(mainFrame);
@@ -47,6 +47,7 @@ public class ShowCommand extends JFrame
         @Override
         public void actionPerformed(ActionEvent e)
         {
+          commandManager.setMatched(command);
         }
       });
       commandButton.setPreferredSize(buttonDimension);
