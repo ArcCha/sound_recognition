@@ -90,7 +90,7 @@ public class Matcher
 
   public static List<Complex> computeSamplesFromCommand(Command command, int matchingSampleSize)
   {
-    List<Complex> rawData = command.getData();
+    List<Complex> rawData = command.getAmplitudeData();
     List<Complex> result = new ArrayList<Complex>(rawData.size());
     int idx = 0;
     while (idx + matchingSampleSize - 1 < rawData.size())

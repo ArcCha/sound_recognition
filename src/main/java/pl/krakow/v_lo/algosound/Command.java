@@ -65,6 +65,14 @@ public class Command extends Observable
   {
     return data;
   }
+  
+  public List<Complex> getAmplitudeData()
+  {
+    List<Complex> amplitudeData = new ArrayList<Complex>();
+    for(Complex value : data)
+      amplitudeData.add(new Complex(value.getReal() / 32678.0));
+    return amplitudeData;
+  }
 
   public String getName()
   {

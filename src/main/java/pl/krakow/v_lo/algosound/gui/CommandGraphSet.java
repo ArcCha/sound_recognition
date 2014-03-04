@@ -98,7 +98,7 @@ public class CommandGraphSet extends JScrollPane implements Observer
     final XYSeries series = new XYSeries("Amplitude - time");
 
     int xValue = 0;
-    for (Complex yValue : command.getData())
+    for (Complex yValue : command.getAmplitudeData())
       series.add(xValue++, yValue.getReal());
 
     return new XYSeriesCollection(series);
