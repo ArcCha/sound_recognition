@@ -160,7 +160,7 @@ public class AlgoSoundGUI extends JFrame
           JOptionPane.showMessageDialog(THIS, "You need to match first");
           return;
         }
-        File matchedSound = null;
+        File matchedSound = database.getCommandSoundFile(commandManager.getMatched().getName());
         BufferedInputStream sound = null;
         try
         {

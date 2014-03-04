@@ -101,10 +101,15 @@ public class Database
     }
 
   }
+  
+  public File getCommandSoundFile(String commandName)
+  {
+    return new File(databaseDir, commandName + ".wav");
+  }
 
   public Command getCommand(String commandName)
   {
-    final File commandFile = new File(databaseDir, commandName + ".wav");
+    final File commandFile = getCommandSoundFile(commandName);
     Command command = new Command();
     command.setName(commandName);
     ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
