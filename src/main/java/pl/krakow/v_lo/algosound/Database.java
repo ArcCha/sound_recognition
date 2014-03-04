@@ -87,7 +87,7 @@ public class Database
     name += ".wav";
     try
     {
-      ByteArrayOutputStream byteOutput = Command.convertComplex(command.getData());
+      ByteArrayOutputStream byteOutput = Command.convertComplexToByteArrayOutputStream(command.getData());
       ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
       long soundLenght = byteInput.available() / 2;
       AudioInputStream audioInput = new AudioInputStream(byteInput, SoundRecorder.AUDIO_FORMAT, soundLenght);

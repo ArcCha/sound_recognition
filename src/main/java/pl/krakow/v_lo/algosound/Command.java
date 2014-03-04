@@ -38,23 +38,24 @@ public class Command extends Observable
     List<Complex> result = new ArrayList<Complex>();
     byte[] byteArr = stream.toByteArray();
     ByteBuffer buff = ByteBuffer.wrap(byteArr);
+  
     buff.order(ByteOrder.LITTLE_ENDIAN);
     while (buff.hasRemaining())
     {
       result.add(new Complex((double) buff.getShort(), 0));
     }
+    
     return result;
   }
   
-  public static ByteArrayOutputStream convertComplex(List<Complex> data) throws IOException
+  public static ByteArrayOutputStream convertComplexToByteArrayOutputStream(List<Complex> data) throws IOException
   {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     for(Complex complex : data)
     {
       ByteBuffer buff = ByteBuffer.allocate(2);
       buff.order(ByteOrder.LITTLE_ENDIAN);
-      double abs = complex.abs();
-      buff.putShort((short) abs);
+      buff.putShort((short) complex.getReal());
       out.write(buff.array());
     }
     return out;

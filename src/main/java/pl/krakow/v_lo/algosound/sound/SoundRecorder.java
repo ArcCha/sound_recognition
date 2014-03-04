@@ -25,7 +25,7 @@ public class SoundRecorder
 
   static
   {
-    AUDIO_FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 16000.0F, 16, 1, 2, 16000.0F, false);
+    AUDIO_FORMAT = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 1, 2, 44100.0F, false);
     TARGET_TYPE = AudioFileFormat.Type.WAVE;
   }
 
