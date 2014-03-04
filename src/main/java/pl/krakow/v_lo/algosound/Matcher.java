@@ -8,6 +8,7 @@ import org.apache.commons.math3.complex.Complex;
 
 import pl.krakow.v_lo.algosound.maths.FFTBasedAlgorithms;
 import pl.krakow.v_lo.algosound.maths.FastFourierTransform;
+import pl.krakow.v_lo.algosound.maths.WindowFunction;
 
 public class Matcher
 {
@@ -90,12 +91,17 @@ public class Matcher
 
   public static List<Complex> computeSamplesFromCommand(Command command, int matchingSampleSize)
   {
+    WindowFunction windowFunction = new WindowFunction();
     List<Complex> rawData = command.getAmplitudeData();
     List<Complex> result = new ArrayList<Complex>(rawData.size());
     int idx = 0;
     while (idx + matchingSampleSize - 1 < rawData.size())
     {
       List<Complex> sample = rawData.subList(idx, idx + matchingSampleSize);
+      
+      windowFunction.setData(sample);
+      sample = windowFunction.computeFlatTopWindow();
+      
       FastFourierTransform fft = new FastFourierTransform(sample);
       result.addAll(fft.transformForward());
       idx += matchingSampleSize;

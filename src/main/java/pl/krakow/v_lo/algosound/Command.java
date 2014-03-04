@@ -1,6 +1,3 @@
-/**
- * 
- */
 package pl.krakow.v_lo.algosound;
 
 import java.io.ByteArrayOutputStream;
@@ -10,7 +7,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-
 import org.apache.commons.math3.complex.Complex;
 
 /**

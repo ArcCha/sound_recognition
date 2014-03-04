@@ -10,7 +10,17 @@ public class WindowFunction
   private double[] coefficients;
   private int len;
   
+  public WindowFunction()
+  {
+    setData(new ArrayList<Complex>());
+  }
+  
   public WindowFunction(List<Complex> data)
+  {
+    setData(data);
+  }
+  
+  public void setData(List<Complex> data)
   {
     this.data = data;
     len = data.size();
