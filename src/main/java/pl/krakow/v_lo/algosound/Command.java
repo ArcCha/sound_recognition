@@ -7,66 +7,62 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-import org.apache.commons.math3.complex.Complex;
 
-/**
- * @author arccha
- */
 public class Command extends Observable
 {
   private String        name;
-  private List<Complex> data;
+  private List<Short> data;
 
   public Command()
   {
     name = "";
-    data = new ArrayList<Complex>();
+    data = new ArrayList<Short>();
   }
   
-  public Command(String name, List<Complex> data)
+  public Command(String name, List<Short> data)
   {
     this.name = name;
     this.data = data;
   }
 
-  public static List<Complex> parseBytes(ByteArrayOutputStream stream)
+  public static List<Short> parseBytes(ByteArrayOutputStream stream)
   {
-    List<Complex> result = new ArrayList<Complex>();
+    List<Short> result = new ArrayList<Short>();
     byte[] byteArr = stream.toByteArray();
     ByteBuffer buff = ByteBuffer.wrap(byteArr);
   
     buff.order(ByteOrder.LITTLE_ENDIAN);
     while (buff.hasRemaining())
     {
-      result.add(new Complex((double) buff.getShort(), 0));
+      result.add(buff.getShort());
     }
     
     return result;
   }
   
-  public static ByteArrayOutputStream convertComplexToByteArrayOutputStream(List<Complex> data) throws IOException
+  public static ByteArrayOutputStream convertDoubleToByteArrayOutputStream(List<Short> data) throws IOException
   {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    for(Complex complex : data)
+    for(Short value : data)
     {
       ByteBuffer buff = ByteBuffer.allocate(2);
       buff.order(ByteOrder.LITTLE_ENDIAN);
-      buff.putShort((short) complex.getReal());
+      buff.putShort(value);
       out.write(buff.array());
     }
     return out;
   }
   
-  public List<Complex> getData()
+  public List<Short> getData()
   {
     return data;
   }
   
-  public List<Complex> getAmplitudeData()
+  public List<Double> getAmplitudeData()
   {
-    List<Complex> amplitudeData = new ArrayList<Complex>();
-    for(Complex value : data)
-      amplitudeData.add(new Complex(value.getReal() / 32678.0));
+    List<Double> amplitudeData = new ArrayList<Double>();
+    for(Short value : data)
+      amplitudeData.add(value.doubleValue() / (1 << 15));
     return amplitudeData;
   }
 
@@ -86,7 +82,7 @@ public class Command extends Observable
     this.name = name;
   }
 
-  public void setData(List<Complex> data)
+  public void setData(List<Short> data)
   {
     this.data = data;
   }

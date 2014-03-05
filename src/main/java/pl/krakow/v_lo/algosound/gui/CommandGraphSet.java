@@ -23,9 +23,6 @@ import pl.krakow.v_lo.algosound.Matcher;
 
 public class CommandGraphSet extends JScrollPane implements Observer
 {
-  /**
-   * 
-   */
   private static final long      serialVersionUID  = 1L;
   private static final String    NO_DATA_AVAILABLE = "No data available.";
   private static final Dimension CHART_DIMENSION   = new Dimension(256, 256);
@@ -98,8 +95,8 @@ public class CommandGraphSet extends JScrollPane implements Observer
     final XYSeries series = new XYSeries("Amplitude - time");
 
     int xValue = 0;
-    for (Complex yValue : command.getAmplitudeData())
-      series.add(xValue++, yValue.getReal());
+    for (Double yValue : command.getAmplitudeData())
+      series.add(xValue++, yValue);
 
     return new XYSeriesCollection(series);
   }

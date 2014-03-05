@@ -92,8 +92,11 @@ public class Matcher
   public static List<Complex> computeSamplesFromCommand(Command command, int matchingSampleSize)
   {
     WindowFunction windowFunction = new WindowFunction();
-    List<Complex> rawData = command.getAmplitudeData();
+    List<Complex> rawData = new ArrayList<Complex>();
+    for (Double value : command.getAmplitudeData())
+      rawData.add(new Complex(value));
     List<Complex> result = new ArrayList<Complex>(rawData.size());
+    
     int idx = 0;
     while (idx + matchingSampleSize - 1 < rawData.size())
     {

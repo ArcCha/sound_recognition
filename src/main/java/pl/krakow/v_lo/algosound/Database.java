@@ -11,9 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,8 +18,6 @@ import java.util.Properties;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.apache.commons.math3.complex.Complex;
 
 import pl.krakow.v_lo.algosound.sound.SoundRecorder;
 
@@ -87,7 +82,7 @@ public class Database
     name += ".wav";
     try
     {
-      ByteArrayOutputStream byteOutput = Command.convertComplexToByteArrayOutputStream(command.getData());
+      ByteArrayOutputStream byteOutput = Command.convertDoubleToByteArrayOutputStream(command.getData());
       ByteArrayInputStream byteInput = new ByteArrayInputStream(byteOutput.toByteArray());
       long soundLenght = byteInput.available() / 2;
       AudioInputStream audioInput = new AudioInputStream(byteInput, SoundRecorder.AUDIO_FORMAT, soundLenght);
@@ -96,7 +91,6 @@ public class Database
     }
     catch (IOException e)
     {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -129,10 +123,9 @@ public class Database
     }
     catch (UnsupportedAudioFileException | IOException e)
     {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    List<Complex> data = Command.parseBytes(byteOutput);
+    List<Short> data = Command.parseBytes(byteOutput);
     command.setData(data);
     return command;
   }
