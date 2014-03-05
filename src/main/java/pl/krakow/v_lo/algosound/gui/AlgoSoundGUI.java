@@ -182,26 +182,6 @@ public class AlgoSoundGUI extends JFrame
     panel.add(innerPanel, BorderLayout.EAST);
   }
 
-//TODO Remove
-//  private JCheckBox createColoredCheckBox(final ColoredSpectrumChart spectrum, String text)
-//  {
-//    JCheckBox spectrumCheckBox = new JCheckBox(text);
-//    spectrumCheckBox.setSelected(true);
-//    spectrumCheckBox.addActionListener(new ActionListener()
-//    {
-//      @Override
-//      public void actionPerformed(ActionEvent actionEvent)
-//      {
-//        AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-//        if (abstractButton.getModel().isSelected())
-//          spectrum.unhideIt();
-//        else
-//          spectrum.hideIt();
-//      }
-//    });
-//    return spectrumCheckBox;
-//  }
-
   private void justifyButtonsAndAdd(JPanel panel, JButton... buttons)
   {
     Dimension dimension = new Dimension(140, 30);

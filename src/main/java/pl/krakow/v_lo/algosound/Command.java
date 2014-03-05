@@ -40,7 +40,7 @@ public class Command extends Observable
     return result;
   }
   
-  public static ByteArrayOutputStream convertDoubleToByteArrayOutputStream(List<Short> data) throws IOException
+  public static ByteArrayOutputStream convertShortToByteArrayOutputStream(List<Short> data) throws IOException
   {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     for(Short value : data)

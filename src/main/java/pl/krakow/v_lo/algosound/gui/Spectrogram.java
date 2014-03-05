@@ -14,26 +14,32 @@ import org.apache.commons.math3.complex.Complex;
 import pl.krakow.v_lo.algosound.Command;
 import pl.krakow.v_lo.algosound.Matcher;
 
-public class Spectogram extends JComponent
+public class Spectrogram extends JComponent
 {
   private static final long serialVersionUID = 1L;
   private List<Double>      data;
   private final int         sampleSize       = 1024;
+  
+  public Spectrogram(Dimension dimension)
+  {
+    this(new Dimension(66150 / 1024 / 2, 512), new Command());
+  }
 
-  public Spectogram(Dimension dimension, Command command)
+  public Spectrogram(Dimension dimension, Command command)
   {
     createDataset(command);
-    setSize(dimension);
-    repaint();
+    setPreferredSize(dimension);
     setVisible(true);
+    repaint();
   }
 
   @Override
   public void paintComponent(Graphics g)
   {
+    System.out.println("Paint");
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D) g;
-    final int width = 3;
+    final int width = 6;
     final int height = 1;
     final int numberOfSamplesAverage = 2;
     
@@ -46,6 +52,7 @@ public class Spectogram extends JComponent
         val += data.get(j).floatValue();
         if ((j + 1) % numberOfSamplesAverage == 0)
         {
+          val /= numberOfSamplesAverage;
           val = Math.min(val, 1f);
           g2d.setColor(new Color(val, val, val));
           g2d.fillRect(x, y, width, height);
@@ -64,7 +71,7 @@ public class Spectogram extends JComponent
       data.add(yValue.abs());
   }
 
-  public void updateSpectrum(Command command)
+  public void updateDataset(Command command)
   {
     createDataset(command);
     repaint();

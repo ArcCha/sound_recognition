@@ -30,6 +30,7 @@ public class CommandGraphSet extends JScrollPane implements Observer
   private XYPlot                 soundWavePlot;
   private JFreeChart             spectrumChart;
   private XYPlot                 spectrumPlot;
+  private Spectrogram            spectrogram;
 
   CommandGraphSet()
   {
@@ -49,6 +50,8 @@ public class CommandGraphSet extends JScrollPane implements Observer
     ChartPanel spectrumChartPanel = new ChartPanel(spectrumChart);
     spectrumChartPanel.setPreferredSize(CHART_DIMENSION);
     panel.add(spectrumChartPanel);
+    spectrogram = new Spectrogram(CHART_DIMENSION);
+    panel.add(spectrogram);
     setViewportView(panel);
   }
 
@@ -84,10 +87,9 @@ public class CommandGraphSet extends JScrollPane implements Observer
   public void update(Observable arg0, Object arg1)
   {
     Command command = (Command) arg0;
-    XYDataset soundWaveDataset = createSoundWaveDataset(command);
-    soundWavePlot.setDataset(soundWaveDataset);
-    XYDataset spectrumDataset = createSpectrumDataset(command);
-    spectrumPlot.setDataset(spectrumDataset);
+    soundWavePlot.setDataset(createSoundWaveDataset(command));
+    spectrumPlot.setDataset(createSpectrumDataset(command));
+    spectrogram.updateDataset(command);
   }
 
   private XYDataset createSoundWaveDataset(Command command)
